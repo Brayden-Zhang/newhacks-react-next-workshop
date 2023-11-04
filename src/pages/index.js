@@ -1,5 +1,7 @@
+import RenderFromTemplateContext from 'next/dist/client/components/render-from-template-context';
 import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
+import {NavBar} from './Navbar.js';
 
 export default function App() {
   const [messages, setMessages] = useState([]);
@@ -8,11 +10,25 @@ export default function App() {
   const [inputText, setInputText] = useState('');
   
   // TODO: make a state variable to keep track of dark or light mode
+  const[variable, setVariable] = useState('light');
+  // const[dark, setDark]  = useState(False);
 
+  
   const addMessage = (role, message) => {
     const newMessage = { role, message };
 
-    // TOOD: add the new messages to the messages state variable
+    // TODO: add the new messages to the messages state variable
+    setMessages((prevMessages ) => {
+      return (
+        [...prevMessages, newMessage]
+      )
+    })
+
+    
+
+
+
+    
     
   };
   
@@ -40,8 +56,16 @@ export default function App() {
     try {
       // API link: https://api.cohere.ai/v1/chat
       // TODO: Make a request to the API with the options above
+      const res = await fetch('https://api.cohere.ai/v1/chat', options);
+      const data  = await res.json();
+      console.log(data);
+
+
+      
 
       // TODO: Add your response to the chat using the addMessage function
+    
+      addMessage('chatbot', data.text);
 
     } catch (err) {
       console.error(err)
@@ -49,6 +73,7 @@ export default function App() {
   }
 
   const handleUserInput = async () => {
+    console.log(inputText);
     const userMessage = inputText.trim();
     if (userMessage) {
       addMessage('user', userMessage);
@@ -65,8 +90,12 @@ export default function App() {
   // TODO: Make an alert every time the user switches between light and dark mode
 
   
+  
   useEffect(() => {
     // TODO : add a welcome message by sending "hi" to the bot when the page loads
+
+    simulateBotResponse('hi');
+
 
   }, [])
   
@@ -75,17 +104,9 @@ export default function App() {
   return (
   <>
     {/* Navbar */}
-    <div className="navbar">
-      <Link href={"https:/ieee.utoronto.ca"}>
-        <img className='logo' src="/logo.png"/>
-      </Link>
-      <Link href={"/"}>
-        <button className="promo">Home</button>
-      </Link>
-      {/* TODO: Make the promo page */}
-      
-    </div>
-
+    <NavBar />
+    
+    
     {/* Chat */}
     <div 
       className="chat-container"
@@ -106,6 +127,18 @@ export default function App() {
       {/* Light and Dark Mode Button */}
       <button 
         // TODO: handle user switching between light and dark mode using onClick
+        onClick = {() => {
+          setDark(!dark);
+          // if (variable == 'light'){
+          //   setVariable('dark');
+          //   setDark(True);
+          // } else {
+          //   setVariable('light');
+          //   setDark(False);
+          // }
+        }}
+
+
 
       >
         Dark Mode
@@ -114,12 +147,17 @@ export default function App() {
         type="text"
         value={inputText}
         // TODO: handle user input using onChange
+        onChange = {(event) => setInputText(event.target.value)}
 
         placeholder="Type a message..." 
         // TODO: handle a user pressing enter to send a message
 
+
+
       />
       <button onClick={handleUserInput}>Send</button>
+
+
     </div>
   </>
   );
